@@ -2,23 +2,34 @@
 
 module.exports = {
   root: true,
-  parser: 'babel-eslint',
   parserOptions: {
-    sourceType: 'module'
+    parser: 'babel-eslint'
   },
   env: {
     browser: true,
   },
   {{#if_eq lintConfig "standard"}}
-  // https://github.com/standard/standard/blob/master/docs/RULES-en.md
-  extends: 'standard',
+  extends: [
+    // https://github.com/vuejs/eslint-plugin-vue#priority-a-essential-error-prevention
+    // consider switching to `plugin:vue/strongly-recommended` or `plugin:vue/recommended` for stricter rules.
+    'plugin:vue/essential', 
+    // https://github.com/standard/standard/blob/master/docs/RULES-en.md
+    'standard'
+  ],
   {{/if_eq}}
   {{#if_eq lintConfig "airbnb"}}
-  extends: 'airbnb-base',
+  // https://github.com/vuejs/eslint-plugin-vue#priority-a-essential-error-prevention
+  // consider switching to `plugin:vue/strongly-recommended` or `plugin:vue/recommended` for stricter rules.
+  extends: ['plugin:vue/essential', 'airbnb-base'],
+  {{/if_eq}}
+  {{#if_eq lintConfig "none"}}
+  // https://github.com/vuejs/eslint-plugin-vue#priority-a-essential-error-prevention
+  // consider switching to `plugin:vue/strongly-recommended` or `plugin:vue/recommended` for stricter rules.
+  extends: ['plugin:vue/essential'],
   {{/if_eq}}
   // required to lint *.vue files
   plugins: [
-    'html'
+    'vue'
   ],
   {{#if_eq lintConfig "airbnb"}}
   // check if imports actually resolve
@@ -41,6 +52,16 @@ module.exports = {
     'import/extensions': ['error', 'always', {
       js: 'never',
       vue: 'never'
+    }],
+    // disallow reassignment of function parameters
+    // disallow parameter object manipulation except for specific exclusions
+    'no-param-reassign': ['error', {
+      props: true,
+      ignorePropertyModificationsFor: [
+        'state', // for vuex state
+        'acc', // for reduce accumulators
+        'e' // for e.returnvalue
+      ]
     }],
     // allow optionalDependencies
     'import/no-extraneous-dependencies': ['error', {
